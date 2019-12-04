@@ -56,3 +56,19 @@ class JsonField extends Field {
         }
     }
 }
+
+class JsonRoot extends Field {
+
+    constructor(json) {
+        super()
+        this.parseJson(json)
+    }
+
+    parseJson(json) {
+        Object.keys(json).forEach((key) => {
+            const jsonField = new JsonField(key, json[key])
+            jsonField.appendToParent(this.div)
+        })
+    }
+
+}
