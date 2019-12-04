@@ -14,6 +14,7 @@ class KeyDiv extends Field {
         super()
         this.div.className = 'textBlock'
         this.div.innerHTML = text
+
     }
 }
 
@@ -31,7 +32,7 @@ class ValueField extends Field {
         this.div.appendChild(this.btn)
         this.div.className = 'valueBlock'
         this.btn.innerHTML = 'EDIT'
-        this.input.value = text
+        this.text.value = text
     }
 }
 
@@ -41,18 +42,36 @@ class JsonField extends Field {
         super()
         this.div.className = 'jsonField'
         this.keyDiv = new KeyDiv(key)
+        this.keyDiv.appendToParent(this.div)
         this.parse(value)
     }
 
+    toggleVisibility() {
+        this.div.style.visibility = this.div.style.visibility === "hidden" ? "visible" : "hidden"
+    }
+
     parse(value) {
-        if (typeof(value) !== "object" || typeof(value) !== "function") {
+        const valueType = typeof(value)
+        if (valueType !== "object") {
             this.valueDiv = new ValueField(value)
-            this.div.appendChild(this.valueDiv)
-        } else if (typeof(value) == "object") {
+            this.valueDiv.appendToParent(this.div)
+        } else {
+              const valueFields = []
+              const btn = document.createElement('button')
+              btn.innerHTML = 'show'
+              //this.div.appendChild(btn)
               Object.keys(value).forEach((key) => {
                   const valueField = new JsonField(key, value[key])
+                  valueFields.push(valueField)
                   valueField.appendToParent(this.div)
+                  //valueField.toggleVisibility()
               })
+              btn.onclick = () => {
+                  this.valueFields.forEach((valueField) => {
+                      valueField.toggleVisibility()
+                      btn.innerHTML = btn.innerHTML === "show" ? "hide" : "show"
+                  })
+              }
         }
     }
 }
@@ -70,5 +89,10 @@ class JsonRoot extends Field {
             jsonField.appendToParent(this.div)
         })
     }
+}
 
+const initJsonRoot = (json) => {
+    const jsonObj = typeof(json) === "string" ? JSON.parse(json) : json
+    const jsonRoot = new JsonRoot(jsonObj)
+    jsonRoot.appendToParent(document.body)
 }
